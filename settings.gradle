@@ -1,0 +1,3 @@
+include ':DVLA_VES_API'
+include ':app'
+rootProject.name = "ProjectCar"
