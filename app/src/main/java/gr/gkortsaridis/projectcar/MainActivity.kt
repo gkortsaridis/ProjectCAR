@@ -3,22 +3,38 @@ package gr.gkortsaridis.projectcar
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import gr.gkortsaridis.dvla_ves_api.DvlaVehiclesApi
-import gr.gkortsaridis.dvla_ves_api.VehicleDetailsListener
-import gr.gkortsaridis.dvla_ves_api.VehicleDetailsResponse
+import android.view.View
+import gr.gkortsaridis.dvla_ves_api.*
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        loading.visibility = View.GONE
 
         DvlaVehiclesApi.apiToken = "3KqBAOt2I66r5TbLC0ebB8XJdPlW5pvv7brxSnCx"
-        DvlaVehiclesApi.getVehicleDetails("YB67HYZ", object : VehicleDetailsListener{
-            override fun onVehicleDetailsLoaded(response: VehicleDetailsResponse) {
-                Log.i("VEHICLE", response.toString())
-            }
-        })
+
+        search_btn.setOnClickListener {
+            loading.visibility = View.VISIBLE
+            val registrationNumber = registration_number_et.text.toString()
+
+            DvlaVehiclesApi.getVehicleDetails(registrationNumber, object : VehicleDetailsListener{
+
+                override fun onVehicleDetailsLoaded(vehicleDetails: VehicleDetails) {
+                    loading.visibility = View.GONE
+                    response_tv.text = vehicleDetails.toString()
+                }
+
+                override fun onVehicleDetailsError(error: ArrayList<VehicleDetailsError>) {
+                    loading.visibility = View.GONE
+                    response_tv.text = error.toString()
+                }
+            })
+        }
+
+
 
     }
 }
