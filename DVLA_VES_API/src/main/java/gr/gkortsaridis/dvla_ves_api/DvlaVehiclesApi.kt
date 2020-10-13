@@ -6,14 +6,19 @@ import io.reactivex.schedulers.Schedulers
 
 object DvlaVehiclesApi {
 
-    var IS_PRODUCTION_ENABLED = true
-    var apiToken = ""
+    fun setupWithApiToken(apiToken: String, useProductionEnvironment: Boolean = true) {
+        this.apiTokenPrivate = apiToken
+        this.IS_PRODUCTION_ENABLED_PRIVATE = useProductionEnvironment
+    }
+
+    val IS_PRODUCTION_ENABLED: Boolean get() { return IS_PRODUCTION_ENABLED_PRIVATE }
+    val apiToken: String get() { return apiTokenPrivate }
+
+    private var IS_PRODUCTION_ENABLED_PRIVATE = true
+    private var apiTokenPrivate = ""
 
     fun getVehicleDetails(registrationNumber: String, listener: VehicleDetailsListener) {
-
-        Log.i("TOKEN", apiToken)
-
-        val disposable = DvlaInternetApi.api.getVehicleDetails(body = VehicleDetailsBody(registrationNumber = registrationNumber), apiKey = apiToken)
+        val disposable = DvlaInternetApi.api.getVehicleDetails(body = VehicleDetailsBody(registrationNumber = registrationNumber), apiKey = apiTokenPrivate)
             .subscribeOn(Schedulers.newThread())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe (
@@ -21,26 +26,26 @@ object DvlaVehiclesApi {
                     if(it.errors == null) {
                         val vehicleDetails = VehicleDetails(
                             registrationNumber = it.registrationNumber,
-                            taxStatus = it.taxStatus,
-                            taxDueDate = it.taxDueDate,
-                            artEndDate = it.artEndDate,
-                            motStatus = it.motStatus,
-                            motExpiryDate = it.motExpiryDate,
-                            make = it.make,
-                            monthOfFirstDvlaRegistration = it.monthOfFirstDvlaRegistration,
-                            monthOfFirstRegistration = it.monthOfFirstRegistration,
-                            yearOfManufacture = it.yearOfManufacture,
-                            engineCapacity = it.engineCapacity,
-                            co2Emissions = it.co2Emissions,
-                            fuelType = it.fuelType,
-                            markedForExport = it.markedForExport,
-                            colour = it.colour,
-                            typeApproval = it.typeApproval,
-                            wheelplan = it.wheelplan,
-                            revenueWeight = it.revenueWeight,
-                            realDrivingEmissions = it.realDrivingEmissions,
-                            dateOfLastV5CIssued = it.dateOfLastV5CIssued,
-                            euroStatus = it.euroStatus
+                            taxStatus = it.taxStatus ?: "",
+                            taxDueDate = it.taxDueDate ?: "",
+                            artEndDate = it.artEndDate ?: "",
+                            motStatus = it.motStatus ?: "",
+                            motExpiryDate = it.motExpiryDate ?: "",
+                            make = it.make ?: "",
+                            monthOfFirstDvlaRegistration = it.monthOfFirstDvlaRegistration ?: "",
+                            monthOfFirstRegistration = it.monthOfFirstRegistration ?: "",
+                            yearOfManufacture = it.yearOfManufacture ?: -1,
+                            engineCapacity = it.engineCapacity ?: -1,
+                            co2Emissions = it.co2Emissions ?: -1,
+                            fuelType = it.fuelType ?: "",
+                            markedForExport = it.markedForExport ?: false,
+                            colour = it.colour ?: "",
+                            typeApproval = it.typeApproval?: "",
+                            wheelplan = it.wheelplan ?: "",
+                            revenueWeight = it.revenueWeight ?: -1,
+                            realDrivingEmissions = it.realDrivingEmissions ?: "",
+                            dateOfLastV5CIssued = it.dateOfLastV5CIssued ?: "",
+                            euroStatus = it.euroStatus ?: ""
                         )
                         listener.onVehicleDetailsLoaded(vehicleDetails)
                     } else {

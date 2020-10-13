@@ -12,14 +12,14 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        loading.visibility = View.GONE
+        DvlaVehiclesApi.setupWithApiToken( apiToken = "3KqBAOt2I66r5TbLC0ebB8XJdPlW5pvv7brxSnCx", useProductionEnvironment = true)
+        Log.i("DVLA API SETUP WITH TOKEN", DvlaVehiclesApi.apiToken)
 
-        DvlaVehiclesApi.apiToken = "3KqBAOt2I66r5TbLC0ebB8XJdPlW5pvv7brxSnCx"
+        loading.visibility = View.GONE
 
         search_btn.setOnClickListener {
             loading.visibility = View.VISIBLE
             val registrationNumber = registration_number_et.text.toString()
-
             DvlaVehiclesApi.getVehicleDetails(registrationNumber, object : VehicleDetailsListener{
 
                 override fun onVehicleDetailsLoaded(vehicleDetails: VehicleDetails) {
@@ -32,6 +32,7 @@ class MainActivity : AppCompatActivity() {
                     response_tv.text = error.toString()
                 }
             })
+
         }
 
 

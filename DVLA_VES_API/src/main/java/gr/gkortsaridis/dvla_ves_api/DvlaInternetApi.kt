@@ -1,5 +1,6 @@
 package gr.gkortsaridis.dvla_ves_api
 
+import android.util.Log
 import gr.gkortsaridis.dvla_ves_api.DvlaVehiclesApi.IS_PRODUCTION_ENABLED
 import io.reactivex.Observable
 import okhttp3.OkHttpClient
@@ -16,14 +17,23 @@ object DvlaInternetApi {
 
     private const val NETWORK_TIMEOUT_SECONDS = 90L
 
-    private const val DVLA_PROD_BASE_URL = "https://driver-vehicle-licensing.api.gov.uk/vehicle-enquiry/"
-    private const val DVLA_TEST_BASE_URL = "https://uat.driver-vehicle-licensing.api.gov.uk/vehicle-enquiry"
+    private const val DVLA_PROD_BASE_URL = "https://driver-vehicle-licensing.api.gov.uk/vehicle-enquiry/v1/vehicles/"
+    private const val DVLA_TEST_BASE_URL = "https://uat.driver-vehicle-licensing.api.gov.uk/vehicle-enquiry/v1/vehicles/"
 
     private val dvlaClient = OkHttpClient.Builder()
-            .connectTimeout(NETWORK_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-            .readTimeout(NETWORK_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-            .writeTimeout(NETWORK_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-            .build()
+        .connectTimeout(NETWORK_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+        .readTimeout(NETWORK_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+        .writeTimeout(NETWORK_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+        .addInterceptor {
+            val request = it.request()
+                .newBuilder()
+                .build()
+
+            Log.i("REQUEST", request.toString())
+
+            it.proceed(request)
+        }
+        .build()
 
     private val retrofitDvlaProd = Retrofit.Builder()
         .client(dvlaClient)
